@@ -2,17 +2,18 @@
 
 %{
 #include <math.h>
+#include <string.h>
 #include "cherry.y.h"
 %}
 
 DIGIT   [0-9]
-ID      [A-Za-z][A-Za-z0-9]*
+ID      [A-Za-z_][A-Za-z0-9_]*
 STR  \"([^\\\"]|\\.)*\" 
 CHAR    \'\\?.\'
 
 %%
 
-[ \t]+|\n[\n]+ /* whitespace */
+[ \t]+ /* whitespace */
 
     /* punctuation */
 "("  return LEFT_PAREN;
@@ -43,9 +44,9 @@ or return OP_OR;
 
 
     /* data literals */
-{DIGIT}*"."{DIGIT}+    { sscanf(yytext, " %f", &yylval); return FLOAT; }
-{DIGIT}+               { sscanf(yytext, " %d", &yylval); return INTEGER; }
-{STR}                  return STRING;
+{DIGIT}*"."{DIGIT}+    { yylval.int4 = atoi(yytext); return FLOAT; }
+{DIGIT}+               { yylval.int4 = atof(yytext); return INTEGER; }
+{STR}                  { yylval.str = strdup(yytext); return STRING; }
 {CHAR}                 return CHARACTER;
 
     /* keywords */
@@ -58,7 +59,8 @@ class   return KEYWORD_CLASS;
 
 int|float|str|char return TYPE; /* primitive data types */
 
-{ID} return IDENTIFIER; /* identifiers */
+    /* identifiers */
+{ID} { yylval.str = strdup(yytext); return IDENTIFIER; }
 
-.|\n return INVALID_TOKEN; /* error */
+
 
