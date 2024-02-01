@@ -80,12 +80,26 @@ params: decl_stmt COLON params
 attr_stmt: variable OP_ATTR a_expr { printf("attr_stmt\n"); }
 
 
-decl_stmt: TYPE IDENTIFIER OP_ATTR a_expr
-         | TYPE IDENTIFIER
+type: TYPE
+    | TYPE brackets
+    | IDENTIFIER
+
+brackets: LEFT_BRACKET RIGHT_BRACKET brackets
+        |
 
 
-for_stmt: KEYWORD_FOR cmp_expr LINEBREAK
+decl_stmt: type IDENTIFIER OP_ATTR a_expr
+         | type IDENTIFIER
+
+
+for_stmt: KEYWORD_FOR for_head LINEBREAK
           seq KEYWORD_END 
+
+for_head: cmp_expr
+        | attr_stmt COLON a_expr
+        | attr_stmt COLON a_expr COLON a_expr
+       
+
 
 
 if_stmt: KEYWORD_IF cmp_expr LINEBREAK 
@@ -113,18 +127,28 @@ term: term OP_MUL factor
 factor: LEFT_PAREN a_expr RIGHT_PAREN 
       | fcall
       | variable
+      | array
       | STRING { printf("str: %s\n", $1); }
+      | CHARACTER
       | INTEGER 
 
-
-fcall: variable LEFT_PAREN args RIGHT_PAREN { printf("fcall\n"); }
 
 variable: IDENTIFIER PERIOD variable 
         | IDENTIFIER { printf("var: %s\n", $1); }
 
+
+fcall: variable LEFT_PAREN args RIGHT_PAREN { printf("fcall\n"); }
+
 args: a_expr COLON args
     | a_expr
     |
+
+
+array: LEFT_BRACKET members RIGHT_BRACKET { printf("array\n"); }
+
+members: a_expr COLON members
+       | a_expr
+       |
 
 %%
 
