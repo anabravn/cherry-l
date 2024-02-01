@@ -12,7 +12,7 @@ CHAR    \'\\?.\'
 
 %%
 
-[ \t]+|\n[\n]+  /* whitespace */
+[ \t]+|\n[\n]+ /* whitespace */
 
     /* punctuation */
 "("  return LEFT_PAREN;
@@ -21,7 +21,7 @@ CHAR    \'\\?.\'
 "]"  return RIGHT_BRACKET;
 ","  return COLON;
 "."  return PERIOD;
-\n   return LINEBREAK; 
+\n   return LINEBREAK;
 
     /* operators */
 "==" return OP_EQUAL;
