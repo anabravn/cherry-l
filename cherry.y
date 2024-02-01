@@ -28,8 +28,20 @@
 
 %%
 
+program: expr LINEBREAK program
+       | expr
 
-rule: 
+expr: expr OP_ADD term { printf("expr\n"); }
+    | expr OP_SUB term { printf("expr\n"); }
+    | term
+
+term: term OP_MUL factor { printf("term\n"); }
+    | term OP_DIV factor { printf("term\n"); }
+    | factor
+
+factor: LEFT_PAREN expr RIGHT_PAREN { printf("factor\n"); }
+      | INTEGER { printf("factor\n"); }
+
 
 %%
 
