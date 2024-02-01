@@ -1,8 +1,8 @@
 %option noyywrap
 
 %{
-#include <stdio.h>
 #include <math.h>
+#include "cherry.y.h"
 %}
 
 DIGIT   [0-9]
@@ -15,59 +15,50 @@ CHAR    \'\\?.\'
 [ \t]+|\n[\n]+  /* whitespace */
 
     /* punctuation */
-"("  { printf("LEFT_PAREN\n"); }
-")"  { printf("RIGHT_PAREN\n"); }
-"["  { printf("LEFT_BRACKET\n"); }
-"]"  { printf("RIGHT_BRACKER\n"); }
-","  { printf("COLON\n"); }
-"."  { printf("PERIOD\n"); }
-\n   { printf("LINEBREAK\n"); }
-
+"("  return LEFT_PAREN;
+")"  return RIGHT_PAREN;
+"["  return LEFT_BRACKET;
+"]"  return RIGHT_BRACKET;
+","  return COLON;
+"."  return PERIOD;
+\n   return LINEBREAK; 
 
     /* operators */
+"==" return OP_EQUAL;
+"!=" return OP_NEQUAL;
+">=" return OP_GREATEREQ;
+"<=" return OP_LESSEQ;
+">" return OP_GREATER;
+"<" return OP_LESS;
 
-"==" { printf("OP_EQUAL\n"); }
-"!=" { printf("OP_NEQUAL\n"); }
-">=" { printf("OP_GREATEREQ\n"); }
-"<=" { printf("OP_LESSEQ\n"); }
-">" { printf("OP_GREATER\n"); }
-"<" { printf("OP_LESS\n"); }
+"+" return OP_ADD;
+"-" return OP_SUB;
+"/" return OP_DIV;
+"*" return OP_MUL;
 
-"+" { printf("OP_ADD\n"); }
-"-" { printf("OP_SUB\n"); }
-"/" { printf("OP_DIV\n"); } 
-"*" { printf("OP_MUL\n"); }
+and return OP_AND;
+or return OP_OR;
 
-and { printf("OP_AND\n"); }
-or { printf("OP_OR\n"); }
-
-"=" { printf("OP_ATTR\n"); }
+"=" return OP_ATTR;
 
 
     /* data literals */
-{DIGIT}+                { printf("INTEGER\t%d\n", atoi(yytext)); }
-{DIGIT}*"."{DIGIT}+     { printf("FLOAT\t%.2f\n", atof(yytext)); }
-{STR}                   { printf("STRING\t%s\n", yytext); }
-{CHAR}                  { printf("CHARACTER\t%s\n", yytext); } 
+{DIGIT}*"."{DIGIT}+    { sscanf(yytext, " %f", &yylval); return FLOAT; }
+{DIGIT}+               { sscanf(yytext, " %d", &yylval); return INTEGER; }
+{STR}                  return STRING;
+{CHAR}                 return CHARACTER;
 
     /* keywords */
-end     { printf("KEYWORD_END\n"); }
-if      { printf("KEYWORD_IF\n"); }
-else    { printf("KEYWORD_ELSE\n"); }
-for     { printf("KEYWORD_FOR\n"); }
-def     { printf("KEYWORD_DEF\n"); }
-class   { printf("KEYWORD_CLASS\n"); }
+end     return KEYWORD_END;
+if      return KEYWORD_IF;
+else    return KEYWORD_ELSE;
+for     return KEYWORD_FOR;
+def     return KEYWORD_DEF;
+class   return KEYWORD_CLASS;
 
-    /* primitive data types */
-int|float|str|char     { printf("TYPE\t%s\n", yytext); }
+int|float|str|char return TYPE; /* primitive data types */
 
-    /* identifiers */
-{ID} { printf("IDENTIFIER\t%s\n", yytext); }
+{ID} return IDENTIFIER; /* identifiers */
 
-.|\n { printf("INVALID_TOKEN\n%s\n", yytext); }
+.|\n return INVALID_TOKEN; /* error */
 
-%%
-
-int main() {
-    yylex();
-}   
