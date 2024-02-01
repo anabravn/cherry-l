@@ -45,6 +45,7 @@ seq: seq LINEBREAK seq
 expr: a_expr { printf("a_expr\n"); }
     | stmt 
     | cmp_expr { printf("cmp_expr\n"); }
+    | cond_expr { printf("cond_expr\n"); }
 
 stmt: if_stmt   { printf("if_stmt\n"); }
     | for_stmt  { printf("for_stmt\n"); }
@@ -102,26 +103,35 @@ for_head: cmp_expr
 
 
 
-if_stmt: KEYWORD_IF cmp_expr LINEBREAK 
+if_stmt: KEYWORD_IF cond_expr LINEBREAK 
          seq if_stmt_end KEYWORD_END 
 
 if_stmt_end: KEYWORD_ELSE seq 
            |
 
 
+
+cond_expr: cond_expr OP_OR cond_term
+         | cond_term
+
+cond_term: cond_term OP_AND cmp_expr
+         | cmp_expr
+
+
 cmp_expr: a_expr cmp_op a_expr 
+        | a_expr
 
 cmp_op: OP_EQUAL | OP_NEQUAL 
       | OP_GREATER | OP_LESS
       | OP_GREATEREQ | OP_LESSEQ
 
 
-a_expr: a_expr OP_ADD term 
-    | a_expr OP_SUB term 
-    | term
+a_expr: a_expr OP_ADD a_term 
+    | a_expr OP_SUB a_term 
+    | a_term
 
-term: term OP_MUL factor 
-    | term OP_DIV factor 
+a_term: a_term OP_MUL factor 
+    | a_term OP_DIV factor 
     | factor
 
 factor: LEFT_PAREN a_expr RIGHT_PAREN 
