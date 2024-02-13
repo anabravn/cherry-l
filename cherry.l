@@ -48,6 +48,7 @@ or return OP_OR;
 {DIGIT}+               { yylval.int4 = atof(yytext); return INTEGER; }
 {STR}                  { yylval.str = strdup(yytext); return STRING; }
 {CHAR}                 return CHARACTER;
+"nil"                  return NIL;
 
     /* keywords */
 end     return KEYWORD_END;

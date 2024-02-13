@@ -12,9 +12,8 @@
 };
 
 %token IDENTIFIER
-%token INVALID_TOKEN
 
-%token INTEGER FLOAT STRING CHARACTER
+%token INTEGER FLOAT STRING CHARACTER NIL
 %token TYPE
 
 %token KEYWORD_IF KEYWORD_FOR KEYWORD_ELSE
@@ -141,6 +140,7 @@ factor: LEFT_PAREN a_expr RIGHT_PAREN
       | STRING { printf("str: %s\n", $1); }
       | CHARACTER
       | INTEGER 
+      | NIL
 
 
 variable: IDENTIFIER PERIOD variable 
