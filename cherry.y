@@ -36,14 +36,13 @@
 
 %%
 
-seq: seq LINEBREAK seq 
-   | seq LINEBREAK
-   | expr
-   |
+seq: expr
+   | seq LINEBREAK expr
 
 expr: a_expr { printf("a_expr\n"); }
     | stmt 
     | cond_expr { printf("cond_expr\n"); }
+    |
 
 stmt: if_stmt   { printf("if_stmt\n"); }
     | for_stmt  { printf("for_stmt\n"); }
@@ -53,19 +52,22 @@ stmt: if_stmt   { printf("if_stmt\n"); }
     | classdecl { printf("classdecl\n"); }
 
 classdecl: KEYWORD_CLASS IDENTIFIER LINEBREAK
-           class_attr
+           class_attrs
            class_methods
            KEYWORD_END
 
-class_attr: class_attr LINEBREAK class_attr
-          | class_attr LINEBREAK
-          | decl_stmt { printf("decl_stmt\n"); }
-          |
+class_attrs: class_attr_decl
+          | class_attrs LINEBREAK class_attr_decl
 
-class_methods: class_methods LINEBREAK class_methods
-             | class_methods LINEBREAK
-             | fdecl
-             |
+class_attr_decl: decl_stmt
+               | 
+
+class_methods: class_method_decl
+             | class_methods LINEBREAK class_method_decl
+
+
+class_method_decl: fdecl
+                 |
 
 fdecl: KEYWORD_DEF IDENTIFIER LEFT_PAREN params RIGHT_PAREN
        LINEBREAK seq KEYWORD_END { printf("fdecl\n"); } 
