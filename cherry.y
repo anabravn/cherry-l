@@ -3,6 +3,12 @@
 #include <stdio.h>
 #include "cherry.l.h"
 
+int yyerror(char const *s)
+{
+    printf("\nERROR: %s\n", s);
+}
+
+
 %}
 
 %union {
@@ -33,6 +39,8 @@
 
 %type <str> IDENTIFIER
 %type <str> STRING
+%type <float> FLOAT
+%type <int> INTEGER
 
 %%
 
@@ -42,7 +50,7 @@ seq: expr
 expr: a_expr { printf("a_expr\n"); }
     | stmt 
     | cond_expr { printf("cond_expr\n"); }
-    |
+    | %empty
 
 stmt: if_stmt   { printf("if_stmt\n"); }
     | for_stmt  { printf("for_stmt\n"); }
@@ -60,21 +68,21 @@ class_attrs: class_attr_decl
           | class_attrs LINEBREAK class_attr_decl
 
 class_attr_decl: decl_stmt
-               | 
+               | %empty
 
 class_methods: class_method_decl
              | class_methods LINEBREAK class_method_decl
 
 
 class_method_decl: fdecl
-                 |
+                 | %empty
 
 fdecl: KEYWORD_DEF IDENTIFIER LEFT_PAREN params RIGHT_PAREN
        LINEBREAK seq KEYWORD_END { printf("fdecl\n"); } 
 
 params: decl_stmt COLON params
       | decl_stmt
-      |
+      | %empty
 
 
 attr_stmt: variable OP_ATTR a_expr { printf("attr_stmt\n"); }
@@ -85,7 +93,7 @@ type: TYPE brackets
 
 
 brackets: LEFT_BRACKET RIGHT_BRACKET brackets
-        |
+        | %empty
 
 
 decl_stmt: type IDENTIFIER OP_ATTR a_expr
@@ -99,19 +107,15 @@ for_head: cond_expr | a_expr
         | attr_stmt COLON a_expr
         | attr_stmt COLON a_expr COLON a_expr
        
-
-
-
 if_stmt: if_head
          seq if_stmt_end KEYWORD_END 
-
 
 if_head: KEYWORD_IF cond_expr LINEBREAK 
        | KEYWORD_IF a_expr LINEBREAK
         
 
 if_stmt_end: KEYWORD_ELSE seq 
-           |
+           | %empty
 
 
 
@@ -159,22 +163,16 @@ fcall: variable LEFT_PAREN args RIGHT_PAREN { printf("fcall\n"); }
 
 args: a_expr COLON args
     | a_expr
-    |
+    | %empty
 
 
 array: LEFT_BRACKET members RIGHT_BRACKET { printf("array\n"); }
 
 members: a_expr COLON members
        | a_expr
-       |
+       | %empty
 
 %%
-
-int yyerror(char const *s)
-{
-    printf("\nERROR: %s\n", s);
-}
-
 int main(void) 
 {
  return yyparse();

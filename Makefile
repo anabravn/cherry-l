@@ -1,5 +1,5 @@
 cherry: lexer cherry.y
-	yacc --defines=cherry.y.h -o cherry.y.c cherry.y
+	bison -Wall --defines=cherry.y.h -o cherry.y.c cherry.y
 	gcc *.c -o cherry
 	rm *.c *.h
 
