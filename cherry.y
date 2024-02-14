@@ -43,7 +43,6 @@ seq: seq LINEBREAK seq
 
 expr: a_expr { printf("a_expr\n"); }
     | stmt 
-    | cmp_expr { printf("cmp_expr\n"); }
     | cond_expr { printf("cond_expr\n"); }
 
 stmt: if_stmt   { printf("if_stmt\n"); }
@@ -94,15 +93,20 @@ decl_stmt: type IDENTIFIER OP_ATTR a_expr
 for_stmt: KEYWORD_FOR for_head LINEBREAK
           seq KEYWORD_END 
 
-for_head: cmp_expr
+for_head: cond_expr | a_expr
         | attr_stmt COLON a_expr
         | attr_stmt COLON a_expr COLON a_expr
        
 
 
 
-if_stmt: KEYWORD_IF cond_expr LINEBREAK 
+if_stmt: if_head
          seq if_stmt_end KEYWORD_END 
+
+
+if_head: KEYWORD_IF cond_expr LINEBREAK 
+       | KEYWORD_IF a_expr LINEBREAK
+        
 
 if_stmt_end: KEYWORD_ELSE seq 
            |
@@ -110,14 +114,17 @@ if_stmt_end: KEYWORD_ELSE seq
 
 
 cond_expr: cond_expr OP_OR cond_term
+         | a_expr OP_OR a_expr
          | cond_term
 
-cond_term: cond_term OP_AND cmp_expr
-         | cmp_expr
+cond_term: cond_term OP_AND cond_factor
+         | a_expr OP_AND a_expr
+         | cond_factor
 
+cond_factor: LEFT_PAREN cond_expr RIGHT_PAREN
+           | cmp_expr
 
 cmp_expr: a_expr cmp_op a_expr 
-        | a_expr
 
 cmp_op: OP_EQUAL | OP_NEQUAL 
       | OP_GREATER | OP_LESS
