@@ -68,7 +68,6 @@ class_methods: class_methods LINEBREAK class_methods
              | fdecl
              |
 
-
 fdecl: KEYWORD_DEF IDENTIFIER LEFT_PAREN params RIGHT_PAREN
        LINEBREAK seq KEYWORD_END { printf("fdecl\n"); } 
 
@@ -80,9 +79,9 @@ params: decl_stmt COLON params
 attr_stmt: variable OP_ATTR a_expr { printf("attr_stmt\n"); }
 
 
-type: TYPE
-    | TYPE brackets
-    | IDENTIFIER
+type: TYPE brackets
+    | IDENTIFIER brackets
+
 
 brackets: LEFT_BRACKET RIGHT_BRACKET brackets
         |
