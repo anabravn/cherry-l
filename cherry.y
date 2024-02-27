@@ -17,35 +17,35 @@ int yyerror(char const *s)
     char *str;              /* Ptr to constant string (strings are malloc'd) */
 };
 
-%token IDENTIFIER
+%token TK_IDENTIFIER
 
-%token INTEGER FLOAT STRING CHARACTER NIL
-%token TYPE
+%token TK_INTEGER TK_FLOAT TK_STRING TK_CHARACTER TK_NIL
+%token TK_TYPE
 
 %token KEYWORD_IF KEYWORD_FOR KEYWORD_ELSE
 %token KEYWORD_DEF KEYWORD_CLASS KEYWORD_END
 
-%token LEFT_PAREN RIGHT_PAREN
-%token LEFT_BRACKET RIGHT_BRACKET
-%token LINEBREAK COLON PERIOD
+%token TK_LEFT_PAREN TK_RIGHT_PAREN
+%token TK_LEFT_BRACKET TK_RIGHT_BRACKET
+%token TK_LINEBREAK TK_COLON TK_PERIOD
 
-%token OP_EQUAL OP_NEQUAL
-%token OP_GREATEREQ OP_LESSEQ
-%token OP_GREATER OP_LESS
+%token TK_EQUAL TK_NEQUAL
+%token TK_GREATEREQ TK_LESSEQ
+%token TK_GREATER TK_LESS
 
-%token OP_ADD OP_SUB OP_DIV OP_MUL
-%token OP_AND OP_OR 
-%token OP_ATTR
+%token TK_ADD TK_SUB TK_DIV TK_MUL
+%token TK_AND TK_OR 
+%token TK_ATTR
 
-%type <str> IDENTIFIER
-%type <str> STRING
-%type <float> FLOAT
-%type <int> INTEGER
+%type <str> TK_IDENTIFIER
+%type <str> TK_STRING
+%type <float> TK_FLOAT
+%type <int> TK_INTEGER
 
 %%
 
 seq: expr
-   | seq LINEBREAK expr
+   | seq TK_LINEBREAK expr
 
 expr: a_expr { printf("a_expr\n"); }
     | stmt 
@@ -59,59 +59,59 @@ stmt: if_stmt   { printf("if_stmt\n"); }
     | fdecl    
     | classdecl { printf("classdecl\n"); }
 
-classdecl: KEYWORD_CLASS IDENTIFIER LINEBREAK
+classdecl: KEYWORD_CLASS TK_IDENTIFIER TK_LINEBREAK
            class_attrs
            class_methods
            KEYWORD_END
 
 class_attrs: class_attr_decl
-          | class_attrs LINEBREAK class_attr_decl
+          | class_attrs TK_LINEBREAK class_attr_decl
 
 class_attr_decl: decl_stmt
                | %empty
 
 class_methods: class_method_decl
-             | class_methods LINEBREAK class_method_decl
+             | class_methods TK_LINEBREAK class_method_decl
 
 
 class_method_decl: fdecl
                  | %empty
 
-fdecl: KEYWORD_DEF IDENTIFIER LEFT_PAREN params RIGHT_PAREN
-       LINEBREAK seq KEYWORD_END { printf("fdecl\n"); } 
+fdecl: KEYWORD_DEF TK_IDENTIFIER TK_LEFT_PAREN params TK_RIGHT_PAREN
+       TK_LINEBREAK seq KEYWORD_END { printf("fdecl\n"); } 
 
-params: decl_stmt COLON params
+params: decl_stmt TK_COLON params
       | decl_stmt
       | %empty
 
 
-attr_stmt: variable OP_ATTR a_expr { printf("attr_stmt\n"); }
+attr_stmt: variable TK_ATTR a_expr { printf("attr_stmt\n"); }
 
 
-type: TYPE brackets
-    | IDENTIFIER brackets
+type: TK_TYPE brackets
+    | TK_IDENTIFIER brackets
 
 
-brackets: LEFT_BRACKET RIGHT_BRACKET brackets
+brackets: TK_LEFT_BRACKET TK_RIGHT_BRACKET brackets
         | %empty
 
 
-decl_stmt: type IDENTIFIER OP_ATTR a_expr
-         | type IDENTIFIER
+decl_stmt: type TK_IDENTIFIER TK_ATTR a_expr
+         | type TK_IDENTIFIER
 
 
-for_stmt: KEYWORD_FOR for_head LINEBREAK
+for_stmt: KEYWORD_FOR for_head TK_LINEBREAK
           seq KEYWORD_END 
 
 for_head: cond_expr | a_expr
-        | attr_stmt COLON a_expr
-        | attr_stmt COLON a_expr COLON a_expr
+        | attr_stmt TK_COLON a_expr
+        | attr_stmt TK_COLON a_expr TK_COLON a_expr
        
 if_stmt: if_head
          seq if_stmt_end KEYWORD_END 
 
-if_head: KEYWORD_IF cond_expr LINEBREAK 
-       | KEYWORD_IF a_expr LINEBREAK
+if_head: KEYWORD_IF cond_expr TK_LINEBREAK 
+       | KEYWORD_IF a_expr TK_LINEBREAK
         
 
 if_stmt_end: KEYWORD_ELSE seq 
@@ -119,56 +119,56 @@ if_stmt_end: KEYWORD_ELSE seq
 
 
 
-cond_expr: cond_expr OP_OR cond_term
-         | a_expr OP_OR a_expr
+cond_expr: cond_expr TK_OR cond_term
+         | a_expr TK_OR a_expr
          | cond_term
 
-cond_term: cond_term OP_AND cond_factor
-         | a_expr OP_AND a_expr
+cond_term: cond_term TK_AND cond_factor
+         | a_expr TK_AND a_expr
          | cond_factor
 
-cond_factor: LEFT_PAREN cond_expr RIGHT_PAREN
+cond_factor: TK_LEFT_PAREN cond_expr TK_RIGHT_PAREN
            | cmp_expr
 
 cmp_expr: a_expr cmp_op a_expr 
 
-cmp_op: OP_EQUAL | OP_NEQUAL 
-      | OP_GREATER | OP_LESS
-      | OP_GREATEREQ | OP_LESSEQ
+cmp_op: TK_EQUAL | TK_NEQUAL 
+      | TK_GREATER | TK_LESS
+      | TK_GREATEREQ | TK_LESSEQ
 
 
-a_expr: a_expr OP_ADD a_term 
-    | a_expr OP_SUB a_term 
+a_expr: a_expr TK_ADD a_term 
+    | a_expr TK_SUB a_term 
     | a_term
 
-a_term: a_term OP_MUL factor 
-    | a_term OP_DIV factor 
+a_term: a_term TK_MUL factor 
+    | a_term TK_DIV factor 
     | factor
 
-factor: LEFT_PAREN a_expr RIGHT_PAREN 
+factor: TK_LEFT_PAREN a_expr TK_RIGHT_PAREN 
       | fcall
       | variable
       | array
-      | STRING { printf("str: %s\n", $1); }
-      | CHARACTER
-      | INTEGER 
-      | NIL
+      | TK_STRING { printf("str: %s\n", $1); }
+      | TK_CHARACTER
+      | TK_INTEGER 
+      | TK_NIL
 
 
-variable: IDENTIFIER PERIOD variable 
-        | IDENTIFIER { printf("var: %s\n", $1); }
+variable: TK_IDENTIFIER TK_PERIOD variable 
+        | TK_IDENTIFIER { printf("var: %s\n", $1); }
 
 
-fcall: variable LEFT_PAREN args RIGHT_PAREN { printf("fcall\n"); }
+fcall: variable TK_LEFT_PAREN args TK_RIGHT_PAREN { printf("fcall\n"); }
 
-args: a_expr COLON args
+args: a_expr TK_COLON args
     | a_expr
     | %empty
 
 
-array: LEFT_BRACKET members RIGHT_BRACKET { printf("array\n"); }
+array: TK_LEFT_BRACKET members TK_RIGHT_BRACKET { printf("array\n"); }
 
-members: a_expr COLON members
+members: a_expr TK_COLON members
        | a_expr
        | %empty
 

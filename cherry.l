@@ -16,39 +16,39 @@ CHAR    \'\\?.\'
 [ \t]+ /* whitespace */
 
     /* punctuation */
-"("  return LEFT_PAREN;
-")"  return RIGHT_PAREN;
-"["  return LEFT_BRACKET;
-"]"  return RIGHT_BRACKET;
-","  return COLON;
-"."  return PERIOD;
-\n   return LINEBREAK;
+"("  return TK_LEFT_PAREN;
+")"  return TK_RIGHT_PAREN;
+"["  return TK_LEFT_BRACKET;
+"]"  return TK_RIGHT_BRACKET;
+","  return TK_COLON;
+"."  return TK_PERIOD;
+\n   return TK_LINEBREAK;
 
     /* operators */
-"==" return OP_EQUAL;
-"!=" return OP_NEQUAL;
-">=" return OP_GREATEREQ;
-"<=" return OP_LESSEQ;
-">" return OP_GREATER;
-"<" return OP_LESS;
+"==" return TK_EQUAL;
+"!=" return TK_NEQUAL;
+">=" return TK_GREATEREQ;
+"<=" return TK_LESSEQ;
+">" return TK_GREATER;
+"<" return TK_LESS;
 
-"+" return OP_ADD;
-"-" return OP_SUB;
-"/" return OP_DIV;
-"*" return OP_MUL;
+"+" return TK_ADD;
+"-" return TK_SUB;
+"/" return TK_DIV;
+"*" return TK_MUL;
 
-and return OP_AND;
-or return OP_OR;
+and return TK_AND;
+or return TK_OR;
 
-"=" return OP_ATTR;
+"=" return TK_ATTR;
 
 
     /* data literals */
-{DIGIT}*"."{DIGIT}+    { yylval.int4 = atoi(yytext); return FLOAT; }
-{DIGIT}+               { yylval.int4 = atof(yytext); return INTEGER; }
-{STR}                  { yylval.str = strdup(yytext); return STRING; }
-{CHAR}                 return CHARACTER;
-"nil"                  return NIL;
+{DIGIT}*"."{DIGIT}+    { yylval.int4 = atoi(yytext); return TK_FLOAT; }
+{DIGIT}+               { yylval.int4 = atof(yytext); return TK_INTEGER; }
+{STR}                  { yylval.str = strdup(yytext); return TK_STRING; }
+{CHAR}                 return TK_CHARACTER;
+"nil"                  return TK_NIL;
 
     /* keywords */
 end     return KEYWORD_END;
@@ -58,10 +58,10 @@ for     return KEYWORD_FOR;
 def     return KEYWORD_DEF;
 class   return KEYWORD_CLASS;
 
-int|float|str|char return TYPE; /* primitive data types */
+int|float|str|char return TK_TYPE; /* primitive data types */
 
     /* identifiers */
-{ID} { yylval.str = strdup(yytext); return IDENTIFIER; }
+{ID} { yylval.str = strdup(yytext); return TK_IDENTIFIER; }
 
 
 
