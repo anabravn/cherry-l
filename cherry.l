@@ -44,8 +44,8 @@ or return TK_OR;
 
 
     /* data literals */
-{DIGIT}*"."{DIGIT}+    { yylval.int4 = atoi(yytext); return TK_FLOAT; }
-{DIGIT}+               { yylval.int4 = atof(yytext); return TK_INTEGER; }
+-?{DIGIT}*"."{DIGIT}+    { yylval.int4 = atoi(yytext); return TK_FLOAT; }
+-?{DIGIT}+               { yylval.int4 = atof(yytext); return TK_INTEGER; }
 {STR}                  { yylval.str = strdup(yytext); return TK_STRING; }
 {CHAR}                 return TK_CHARACTER;
 "nil"                  return TK_NIL;
