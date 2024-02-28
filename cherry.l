@@ -48,7 +48,7 @@ or return TK_OR;
 -?{DIGIT}*"."{DIGIT}+    { yylval.int4 = atoi(yytext); return TK_FLOAT; }
 -?{DIGIT}+               { yylval.int4 = atof(yytext); return TK_INTEGER; }
 {STR}                  { yylval.str = strdup(yytext); return TK_STRING; }
-{CHAR}                 return TK_CHARACTER;
+{CHAR}                 { yylval.ch = yytext[0]; return TK_CHARACTER; }
 "nil"                  return TK_NIL;
 
     /* keywords */
@@ -59,7 +59,7 @@ for     return KEYWORD_FOR;
 def     return KEYWORD_DEF;
 class   return KEYWORD_CLASS;
 
-int|float|str|char return TK_TYPE; /* primitive data types */
+int|float|str|char { yylval.str = strdup(yytext); return TK_TYPE; } /* primitive data types */
 
     /* identifiers */
 {ID} { yylval.str = strdup(yytext); return TK_IDENTIFIER; }
