@@ -6,12 +6,15 @@
 
 int yyerror(char const *s)
 {
-    printf("\nERROR: %s\n", s);
+    printf("\nERROR:%d: %s\n", yylineno, s);
 }
 
 int root;
 
 %}
+
+%define parse.error verbose
+%locations
 
 %union {
     long int4;              /* Constant integer value */
@@ -42,8 +45,8 @@ int root;
 %type <int4> classdecl class_attrs class_methods class_attr_decl class_method_decl
 %type <int4> program seq expr stmt else_stmt array cmp_op
 %type <int4> fdecl decl_stmt type params attr_stmt brackets
-%type <int4> TK_IDENTIFIER TK_TYPE variable TK_STRING TK_CHARACTER TK_FLOAT TK_INTEGER
-%type <int4> a_expr cond_expr a_term cond_term cond_factor factor members cmp_expr
+%type <int4> TK_TYPE variable TK_STRING TK_CHARACTER TK_FLOAT TK_INTEGER
+%type <int4> a_expr cond_expr a_term cond_term cond_factor a_factor members cmp_expr identifier
 %type <int4> for_stmt if_stmt for_head if_head TK_LESS TK_LESSEQ TK_GREATER TK_GREATEREQ TK_EQUAL TK_NEQUAL fcall args
 
 %%
@@ -56,6 +59,7 @@ seq: expr { $$ = mknode($1, -1, -1, "seq"); }
 expr: a_expr { $$ = mknode($1, -1, -1, "expr"); }
     | stmt { $$ = mknode($1, -1, -1, "expr"); } 
     | cond_expr { $$ = mknode($1, -1, -1, "expr"); }
+    | expr error { $$ = -1; }
     | %empty { $$ = -1; }
 
 stmt: if_stmt   { $$ = mknode($1, -1, -1, "stmt"); }
@@ -65,11 +69,11 @@ stmt: if_stmt   { $$ = mknode($1, -1, -1, "stmt"); }
     | fdecl     { $$ = mknode($1, -1, -1, "stmt"); }
     | classdecl { $$ = mknode($1, -1, -1, "stmt"); }
 
-classdecl: KEYWORD_CLASS TK_IDENTIFIER TK_LINEBREAK
+classdecl: KEYWORD_CLASS identifier TK_LINEBREAK
            class_attrs
            class_methods
            KEYWORD_END
-           { $$ = mknode($4, $5, -1, "classdecl"); }
+           { $$ = mknode($2, $4, $5, "classdecl"); }
 
 class_attrs: class_attr_decl { $$ = mknode($1, -1, -1, "class_attrs"); }
           | class_attrs TK_LINEBREAK class_attr_decl { $$ = mknode($1, $3, -1, "class_attrs"); }
@@ -84,9 +88,9 @@ class_methods: class_method_decl { $$ = mknode($1, -1, -1, "class_methods"); }
 class_method_decl: fdecl { $$ = mknode($1, -1, -1, "class_method_decl"); }
                  | %empty { $$ = -1; }
 
-fdecl: KEYWORD_DEF TK_IDENTIFIER TK_LEFT_PAREN params TK_RIGHT_PAREN 
+fdecl: KEYWORD_DEF identifier TK_LEFT_PAREN params TK_RIGHT_PAREN 
        TK_LINEBREAK seq KEYWORD_END 
-       { $$ = mknode($4, $7, -1, "fdecl"); } 
+       { $$ = mknode($2, $4, $7, "fdecl"); } 
 
 params: decl_stmt TK_COLON params { $$ = mknode($1, $3, -1, "params"); }
       | decl_stmt { $$ = mknode($1, -1, -1, "params"); }
@@ -95,17 +99,13 @@ params: decl_stmt TK_COLON params { $$ = mknode($1, $3, -1, "params"); }
 
 attr_stmt: variable TK_ATTR a_expr { $$ = mknode($1, $3, -1, "attr_stmt"); }
 
-
 type: TK_TYPE brackets { $$ = mknode($2, -1, -1, "type"); }
-    | TK_IDENTIFIER brackets { $$ = mknode($2, -1, -1, "type"); }
-
 
 brackets: TK_LEFT_BRACKET TK_RIGHT_BRACKET brackets { $$ = mknode($3, -1, -1, "[]"); }
         | %empty { $$ = -1; }
 
-
-decl_stmt: type TK_IDENTIFIER TK_ATTR a_expr { $$ = mknode($1, $4, -1, "decl_stmt"); }
-         | type TK_IDENTIFIER { $$ = mknode($1, -1, -1, "decl_stmt"); }
+decl_stmt: type identifier TK_ATTR a_expr { $$ = mknode($1, $2, $4, "decl_stmt"); }
+         | type identifier { $$ = mknode($1, $2, -1, "decl_stmt"); }
 
 
 for_stmt: KEYWORD_FOR for_head TK_LINEBREAK
@@ -124,7 +124,7 @@ if_head: KEYWORD_IF cond_expr TK_LINEBREAK { $$ = mknode($2, -1, -1, "if_head");
        | KEYWORD_IF a_expr TK_LINEBREAK { $$ = mknode($2, -1, -1, "if_head"); }
         
 
-else_stmt: KEYWORD_ELSE seq else_stmt {$$ = mknode($2, -1, -1, "else_stmt"); }
+else_stmt: KEYWORD_ELSE seq  {$$ = mknode($2, -1, -1, "else_stmt"); }
            | %empty { $$ = 0; }
 
 cond_expr: cond_expr TK_OR cond_term { $$ = mknode($1, $3, -1, "cond_expr_or"); }
@@ -152,14 +152,14 @@ a_expr: a_expr TK_ADD a_term { $$ = mknode($1, $3, -1, "expr_add"); }
     | a_expr TK_SUB a_term { $$ = mknode($1, $3, -1, "expr_sub"); }
     | a_term { $$ = mknode($1, -1, -1, "a_expr"); }
 
-a_term: a_term TK_MUL factor { $$ = mknode($1, $3, -1, "expr_mul"); } 
-    | a_term TK_DIV factor { $$ = mknode($1, $3, -1, "expr_mul"); }
-    | factor { $$ = mknode($1, -1, -1, "a_term"); }
+a_term: a_term TK_MUL a_factor { $$ = mknode($1, $3, -1, "expr_mul"); } 
+    | a_term TK_DIV a_factor { $$ = mknode($1, $3, -1, "expr_mul"); }
+    | a_factor { $$ = mknode($1, -1, -1, "a_term"); }
 
-factor: TK_LEFT_PAREN a_expr TK_RIGHT_PAREN { $$ = mknode($2, -1, -1, "factor"); }
-      | fcall { $$ = mknode($1, -1, -1, "factor"); }
-      | variable { $$ = mknode($1, -1, -1, "factor"); }
-      | array { $$ = mknode($1, -1, -1, "factor"); }
+a_factor: TK_LEFT_PAREN a_expr TK_RIGHT_PAREN { $$ = mknode($2, -1, -1, "a_factor"); }
+      | fcall { $$ = mknode($1, -1, -1, "a_factor"); }
+      | variable { $$ = mknode($1, -1, -1, "a_factor"); }
+      | array { $$ = mknode($1, -1, -1, "a_factor"); }
       | TK_STRING { $$ = mknode(-1, -1, -1, "string"); }
       | TK_CHARACTER { $$ = mknode(-1, -1, -1, "char"); }
       | TK_INTEGER { $$ = mknode(-1, -1, -1, "integer"); }
@@ -167,8 +167,8 @@ factor: TK_LEFT_PAREN a_expr TK_RIGHT_PAREN { $$ = mknode($2, -1, -1, "factor");
       | TK_NIL { $$ = mknode(-1, -1, -1, "nil"); }
 
 
-variable: TK_IDENTIFIER TK_PERIOD variable { $$ = mknode($3, -1, -1, "variable"); }
-        | TK_IDENTIFIER { $$ = mknode(-1, -1, -1, "variable"); }
+variable: identifier TK_PERIOD variable { $$ = mknode($1, $3, -1, "variable"); }
+        | identifier { $$ = mknode($1, -1, -1, "variable"); }
 
 
 fcall: variable TK_LEFT_PAREN args TK_RIGHT_PAREN { $$ = mknode($1, $3, -1, "fcall"); }
@@ -184,10 +184,12 @@ members: a_expr TK_COLON members { $$ = mknode($1, $3, -1, "members"); }
        | a_expr { $$ = mknode($1, -1, -1, "members"); }
        | %empty { $$ = -1; }
 
+identifier: TK_IDENTIFIER { $$ = mknode(-1, -1, -1, "identifier"); }
+
 %%
 int main(void) 
 {
-    if(yyparse()) return 1;
+    yyparse();
 
     putchar('\n');
     putchar('\n');
