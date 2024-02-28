@@ -59,10 +59,8 @@ for     return KEYWORD_FOR;
 def     return KEYWORD_DEF;
 class   return KEYWORD_CLASS;
 
-int|float|str|char { yylval.str = strdup(yytext); return TK_TYPE; } /* primitive data types */
+/* primitive data types */
+int|float|str|char { yylval.str = strdup(yytext); return TK_TYPE; } 
 
     /* identifiers */
 {ID} { yylval.str = strdup(yytext); return TK_IDENTIFIER; }
-
-
-

@@ -17,38 +17,23 @@ int root;
 %locations
 
 %union {
-    int int4;              /* Constant integer value */
-    float fp;               /* Constant floating point value */
-    char *str;              /* Ptr to constant string (strings are malloc'd) */
+    int int4;              
+    float fp;             
+    char *str;           
     char ch;
 };
 
-%token TK_IDENTIFIER
-
-%token TK_NIL TK_INTEGER TK_FLOAT TK_STRING TK_CHARACTER
-%token TK_TYPE
-
-%token KEYWORD_IF KEYWORD_FOR KEYWORD_ELSE
-%token KEYWORD_DEF KEYWORD_CLASS KEYWORD_END
-
-%token TK_LEFT_PAREN TK_RIGHT_PAREN
-%token TK_LEFT_BRACKET TK_RIGHT_BRACKET
-%token TK_LINEBREAK TK_COLON TK_PERIOD
-
-%token TK_EQUAL TK_NEQUAL
-%token TK_GREATEREQ TK_LESSEQ
-%token TK_GREATER TK_LESS
-
-%token TK_ADD TK_SUB TK_DIV TK_MUL
-%token TK_AND TK_OR 
-%token TK_ATTR
+%token TK_COMMENT TK_IDENTIFIER TK_NIL TK_INTEGER TK_FLOAT TK_STRING 
+TK_CHARACTER TK_TYPE KEYWORD_IF KEYWORD_FOR KEYWORD_ELSE
+KEYWORD_DEF KEYWORD_CLASS KEYWORD_END TK_LEFT_PAREN TK_RIGHT_PAREN
+TK_LEFT_BRACKET TK_RIGHT_BRACKET TK_LINEBREAK TK_COLON TK_PERIOD
+TK_EQUAL TK_NEQUAL TK_GREATEREQ TK_LESSEQ TK_GREATER TK_LESS
+TK_ADD TK_SUB TK_DIV TK_MUL TK_AND TK_OR TK_ATTR
 
 %type <int4> classdecl class_attrs class_methods class_attr_decl class_method_decl
-%type <int4> program seq expr stmt else_stmt array cmp_op
-%type <int4> fdecl decl_stmt type params attr_stmt brackets
-%type <int4> variable 
-%type <int4> a_expr cond_expr a_term cond_term cond_factor a_factor members cmp_expr identifier
-%type <int4> for_stmt if_stmt for_head if_head TK_LESS TK_LESSEQ TK_GREATER TK_GREATEREQ TK_EQUAL TK_NEQUAL fcall args
+program seq expr stmt else_stmt array cmp_op fdecl decl_stmt type params attr_stmt brackets
+variable a_expr cond_expr a_term cond_term cond_factor a_factor members cmp_expr identifier
+for_stmt if_stmt for_head if_head TK_LESS TK_LESSEQ TK_GREATER TK_GREATEREQ TK_EQUAL TK_NEQUAL fcall args
 
 %type <str> TK_TYPE TK_IDENTIFIER TK_STRING
 %type <int4> TK_INTEGER
