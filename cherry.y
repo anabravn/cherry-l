@@ -30,7 +30,7 @@ TK_LEFT_BRACKET TK_RIGHT_BRACKET TK_LINEBREAK TK_COLON TK_PERIOD
 TK_EQUAL TK_NEQUAL TK_GREATEREQ TK_LESSEQ TK_GREATER TK_LESS
 TK_ADD TK_SUB TK_DIV TK_MUL TK_AND TK_OR TK_ATTR
 
-%type <int4> classdecl class_attrs class_methods class_attr_decl class_method_decl
+%type <int4> array_offset classdecl class_attrs class_methods class_attr_decl class_method_decl
 program seq expr stmt else_stmt array cmp_op fdecl decl_stmt type params attr_stmt brackets
 variable a_expr cond_expr a_term cond_term cond_factor a_factor members cmp_expr identifier
 for_stmt if_stmt for_head if_head TK_LESS TK_LESSEQ TK_GREATER TK_GREATEREQ TK_EQUAL TK_NEQUAL fcall args
@@ -91,6 +91,7 @@ params: decl_stmt TK_COLON params { $$ = mknode($1, $3, -1, "params", (NodeValue
 attr_stmt: variable TK_ATTR a_expr { $$ = mknode($1, $3, -1, "attr_stmt", (NodeValue) 0); }
 
 type: TK_TYPE brackets { $$ = mknode($2, -1, -1, "type", (NodeValue) $1); }
+    | identifier brackets { $$ = mknode($1, $2, -1, "type", (NodeValue) $1); }
 
 brackets: TK_LEFT_BRACKET TK_RIGHT_BRACKET brackets { $$ = mknode($3, -1, -1, "[]", (NodeValue) 0); }
         | %empty { $$ = -1; }
@@ -159,6 +160,7 @@ a_factor: TK_LEFT_PAREN a_expr TK_RIGHT_PAREN { $$ = mknode($2, -1, -1, "a_facto
 
 
 variable: identifier TK_PERIOD variable { $$ = mknode($1, $3, -1, "variable", (NodeValue) 0); }
+        | identifier array_offset { $$ = mknode($1, $2, -1, "variable", (NodeValue) 0); }
         | identifier { $$ = mknode($1, -1, -1, "variable", (NodeValue) 0); }
 
 
@@ -176,6 +178,8 @@ members: a_expr TK_COLON members { $$ = mknode($1, $3, -1, "members", (NodeValue
        | %empty { $$ = -1; }
 
 identifier: TK_IDENTIFIER { $$ = mknode(-1, -1, -1, "identifier", (NodeValue) $1); }
+
+array_offset: TK_LEFT_BRACKET a_expr TK_RIGHT_BRACKET { $$ = mknode($2, -1, -1, "array_offset", (NodeValue) 0); }
 
 %%
 int main(void) 

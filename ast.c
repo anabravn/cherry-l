@@ -69,7 +69,15 @@ int mknode(int one, int two, int three, char *type, NodeValue v)
     n->two = two;
     n->three = three;
     n->type = type;
-    n->value = v;
+
+    if(!strcmp(type, "float"))
+        n->value.fp = v.fp;
+    else if(!strcmp(type, "int"))
+        n->value.int4 = v.int4;
+    else if(!strcmp(type, "char"))
+        n->value.ch = v.ch;
+    else if(is_string(type))
+        n->value.str = v.str;
 
     for(i = 0; i < MAX_SIZE && graph[i]; i++)
         ;
